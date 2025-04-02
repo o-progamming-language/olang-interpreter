@@ -1,4 +1,5 @@
 # olang-interpreter
+![olang-image](olang.png)
 > [!NOTE]
 > this language is way underdeveloped, pls do not use it in production if you dont want be fucked.
 interpreter for olang (o programming language)
