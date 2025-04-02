@@ -1,5 +1,6 @@
 # olang-interpreter
-[!note] this language is way underdeveloped, pls do not use it in production if you dont want be fucked.
+> [!NOTE]
+> this language is way underdeveloped, pls do not use it in production if you dont want be fucked.
 interpreter for olang (o programming language)
 
 # what is olang?
