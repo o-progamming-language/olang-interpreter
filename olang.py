@@ -46,24 +46,41 @@ class interpreter:
     def __init__(self):
         self.varibles = {}
         self.functions = {}
+    def isvar(self, line):
+        if line in self.varibles:
+            return self.varibles[line]
+        return line
     def runline(self, line):
         for i in range(len(line)):
             token = line[i]
             if token == '=':
-                self.varibles[line[i-1]] = line[i+1]
+                j = i+1
+                result = []
+                while line[j] != ';':
+                    if line[j] == '$':
+                        result.append(self.isvar(line[j+1]))
+                        j += 1
+                    elif line[j] == '+':
+                        result.append(str(int(result.pop()) + int(self.isvar(line[j+2]))))
+                        j += 2
+                    else:
+                        result.append(line[j])
+                    j += 1
+                self.varibles[line[i-1]] = "".join(result)
+                i = j
             elif token == ';':
                 break
             elif token == 'show':
                 if line[i+1] == '$':
                     print(self.varibles[line[i+2]])
                     continue
+                string = []
                 for j in range(i+2, len(line)):
-                    string = []
                     if line[j] == '"':
                         break
                     string.append(line[j])
                     i = j
-                    print(" ".join(string))
+                print(" ".join(string))
     def runprogram(self, program):
         for line in program:
             self.runline(line)
