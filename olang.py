@@ -80,7 +80,7 @@ class interpreter:
                         break
                     string.append(line[j])
                     i = j
-                print(" ".join(string))
+                    print(" ".join(string))
     def runprogram(self, program):
         for line in program:
             self.runline(line)
