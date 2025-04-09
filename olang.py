@@ -1,23 +1,6 @@
-import sys
-
-class stack:
-    def __init__(self):
-        self.arr = []
-        self.pt = -1
-    def push(self, element):
-        print(self.arr)
-        self.arr.append(element)
-        self.pt += 1
-    def pop(self):
-        print(self.arr, '|')
-        return self.arr.pop()
-    def top(self):
-        return self.arr[-1]
-
 class lexer:
     def tokline(self, line):
         tokens = []
-        i = 0
         for ch in line:
             if len(tokens) == 0:
                 tokens.append(ch)
@@ -41,56 +24,56 @@ class lexer:
         out = []
         for line in program:
             out.append(self.tokline(line))
-        return out
-class interpreter:
+        return [item for sublist in out for item in sublist]
+class Node:
+    def __init__(self, children=None, val=None, typet=None):
+        self.children = children if children is not None else []
+        self.val = val
+        self.type = typet
+
+class parser:
     def __init__(self):
-        self.varibles = {}
-        self.functions = {}
-    def isvar(self, line):
-        if line in self.varibles:
-            return self.varibles[line]
-        return line
-    def runline(self, line):
-        for i in range(len(line)):
-            token = line[i]
-            if token == '=':
-                j = i+1
-                result = []
-                while line[j] != ';':
-                    if line[j] == '$':
-                        result.append(self.isvar(line[j+1]))
-                        j += 1
-                    elif line[j] == '+':
-                        result.append(str(int(result.pop()) + int(self.isvar(line[j+2]))))
-                        j += 2
-                    else:
-                        result.append(line[j])
-                    j += 1
-                self.varibles[line[i-1]] = "".join(result)
-                i = j
-            elif token == ';':
-                break
-            elif token == 'show':
-                if line[i+1] == '$':
-                    print(self.varibles[line[i+2]])
-                    continue
-                string = []
-                for j in range(i+2, len(line)):
-                    if line[j] == '"':
+        self.head = Node(children=[], val=None, typet='ROOT')
+        self.current = self.head
+    def buildast(self, program):
+        for i in range(len(program)):
+            if program[i] == 'var':
+                VarNode = Node(typet='VARA')
+                name = Node(val=program[i+1], typet='VARN')
+                val = None
+                temp = []
+                for i in range(i+2, len(program)):
+                    if program[i] == ';':
                         break
-                    string.append(line[j])
-                    i = j
-                    print(" ".join(string))
-    def runprogram(self, program):
-        for line in program:
-            self.runline(line)
+                    elif program[i] == '$':
+                        temp.append(Node(val=program[i+1], typet='VARF'))
+                    elif program[i].isdigit():
+                        temp.append(Node(val=program[i], typet='LIT'))
+                    elif program[i] == '+':
+                        a = Node(children=[], val='OP+', typet='ADD')
+                        a.children.append(temp.pop())
+                        a.children.append(temp.pop())
+                        temp.append(a)
+                VarNode.children.append(name)
+                for i in temp:
+                    VarNode.children.append(i)
+                self.head.children.append(VarNode)
+    def printast(self, node, ind=0):
+        if not isinstance(node, Node):
+            print(node)
+            return
+        print(" "*ind , node.type, '->', node.val)
+        for nod in node.children:
+            self.printast(nod, ind+1)
+
+        
 if __name__ == '__main__':
-    s = stack()
     lex = lexer()
-    inp = interpreter()
+    par = parser()
     program = []
-    with open('program.ol') as f:
+    with open('program.ol', 'r') as f:
         for line in f:
             program.append(line)
     tokens = lex.tokprogram(program)
-    inp.runprogram(tokens)
+    par.buildast(tokens)
+    par.printast(par.head)
